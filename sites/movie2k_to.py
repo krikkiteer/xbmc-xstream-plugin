@@ -37,6 +37,7 @@ URL_SEARCH = 'http://www.movie2k.to/movies.php?list=search'
 
 META = False
 
+
 def load():
     oGui = cGui()
     __createMainMenuItem(oGui, 'Filme', '', 'showMovieMenu')
@@ -45,14 +46,16 @@ def load():
         __createMainMenuItem(oGui, 'XXX', '', 'showXXXMenu')
     __createMainMenuItem(oGui, 'Suche', '', 'showSearch')
     oGui.setEndOfDirectory()
-    
+
+
 def showMovieMenu():
     oGui = cGui()
     __createMainMenuItem(oGui, 'Kinofilme', URL_MOVIES, 'showFeaturedMovies')
     __createMainMenuItem(oGui, 'Alle Filme', URL_MOVIES_ALL, 'showCharacters')
     __createMainMenuItem(oGui, 'Genre', URL_MOVIES_GENRE, 'showGenre')
     oGui.setEndOfDirectory()
- 
+
+
 def showSeriesMenu():
     oGui = cGui()
     __createMainMenuItem(oGui, 'Featured', URL_SERIES, 'showFeaturedSeries')
@@ -60,7 +63,8 @@ def showSeriesMenu():
     __createMainMenuItem(oGui, 'Top Serien', URL_SERIES_TOP, 'parseMovieSimpleList')
     __createMainMenuItem(oGui, 'Genre', URL_SERIES_GENRE, 'showGenre')
     oGui.setEndOfDirectory()
-    
+
+
 def showXXXMenu():
     oGui = cGui()
     __createMainMenuItem(oGui, 'Aktuelles', URL_XXX, 'showFeaturedMovies')
@@ -68,7 +72,8 @@ def showXXXMenu():
     __createMainMenuItem(oGui, 'Genre', URL_XXX_GENRE, 'showGenre')
     oGui.setEndOfDirectory()
 
-def __getHtmlContent(sUrl = None, sSecurityValue = None):
+
+def __getHtmlContent(sUrl=None, sSecurityValue=None):
     oInputParameterHandler = cInputParameterHandler()
     # Test if a url is available and set it
     if sUrl is None and not oInputParameterHandler.exist("siteUrl"):
@@ -87,7 +92,7 @@ def __getHtmlContent(sUrl = None, sSecurityValue = None):
     # preferred language
     sPrefLang = __getPreferredLanguage()
     # adult Cookie
-    adultCookie ='xxx2=ok;'
+    adultCookie = 'xxx2=ok;'
     # Make the request
     oRequest = cRequestHandler(sUrl)
     oRequest.addHeaderEntry('Cookie', sPrefLang+sSecurityValue+adultCookie)
@@ -96,7 +101,8 @@ def __getHtmlContent(sUrl = None, sSecurityValue = None):
     #oRequest.addHeaderEntry('Host', 'movie2k.to')
 
     return oRequest.request()
-    
+
+
 def __getPreferredLanguage():
     oConfig = cConfig()
     sLanguage = oConfig.getSetting('prefLanguage')
@@ -107,19 +113,21 @@ def __getPreferredLanguage():
     else:
         sPrefLang = ''
     return sPrefLang
-    
+
+
 def showAdult():
     oConfig = cConfig()
-    if oConfig.getSetting('showAdult')=='true':    
+    if oConfig.getSetting('showAdult') == 'true':
         return True
-    return False 
-    
+    return False
+
+
 def showCharacters():
     oGui = cGui()
-    
+
     oInputParameterHandler = cInputParameterHandler()
     baseUrl = oInputParameterHandler.getValue('sUrl')
-        
+
     __createCharacters(oGui, '#', baseUrl)
     __createCharacters(oGui, 'A', baseUrl)
     __createCharacters(oGui, 'B', baseUrl)
@@ -136,7 +144,7 @@ def showCharacters():
     __createCharacters(oGui, 'M', baseUrl)
     __createCharacters(oGui, 'N', baseUrl)
     __createCharacters(oGui, 'O', baseUrl)
-    __createCharacters(oGui, 'P', baseUrl)    
+    __createCharacters(oGui, 'P', baseUrl)
     __createCharacters(oGui, 'Q', baseUrl)
     __createCharacters(oGui, 'R', baseUrl)
     __createCharacters(oGui, 'S', baseUrl)
@@ -149,10 +157,11 @@ def showCharacters():
     __createCharacters(oGui, 'Z', baseUrl)
     oGui.setEndOfDirectory()
 
+
 def __createCharacters(oGui, sCharacter, sBaseUrl):
     oGuiElement = cGuiElement()
     oGuiElement.setSiteName(SITE_IDENTIFIER)
-    oGuiElement.setFunction('parseMovieSimpleList') 
+    oGuiElement.setFunction('parseMovieSimpleList')
     oGuiElement.setTitle(sCharacter)
 
     if (sCharacter == '#'):
@@ -162,8 +171,9 @@ def __createCharacters(oGui, sCharacter, sBaseUrl):
 
     oOutputParameterHandler = cOutputParameterHandler()
     oOutputParameterHandler.addParameter('sUrl', sUrl)
-    oGui.addFolder(oGuiElement, oOutputParameterHandler)        
-        
+    oGui.addFolder(oGuiElement, oOutputParameterHandler)
+
+
 def showAllSeasons():
     oInputParameterHandler = cInputParameterHandler()
     sUrl = ''
@@ -173,6 +183,7 @@ def showAllSeasons():
     else:
         return
 
+
 def __showAllSeasons(sUrl):
     oGui = cGui()
     oRequest = cRequestHandler(sUrl)
@@ -180,12 +191,12 @@ def __showAllSeasons(sUrl):
 
     sPattern = '<SELECT name="season".*?>(.*?)</SELECT>'
     oParser = cParser()
-    
+
     aResult = oParser.parse(sHtmlContent, sPattern)
-    if (aResult[0] == True):
+    if aResult[0]:
         sPattern = '<OPTION value="(\d+)".*?>([^<]+)</OPTION>'
-        aResult = oParser.parse(sHtmlContent,sPattern)
-        if (aResult[0] == True):
+        aResult = oParser.parse(sHtmlContent, sPattern)
+        if aResult[0]:
             for aEntry in aResult[1]:
                 oGuiElement = cGuiElement()
                 oGuiElement.setSiteName(SITE_IDENTIFIER)
@@ -197,11 +208,12 @@ def __showAllSeasons(sUrl):
                 oOutputParameterHandler = cOutputParameterHandler()
                 oOutputParameterHandler.addParameter('sUrl', sUrl)
                 oOutputParameterHandler.addParameter('sSeason', aEntry[0])
-                
+
                 oGui.addFolder(oGuiElement, oOutputParameterHandler)
     oGui.setView('seasons')
     oGui.setEndOfDirectory()
-        
+
+
 def showAllEpisodes():
     oGui = cGui()
     oInputParameterHandler = cInputParameterHandler()
@@ -213,69 +225,72 @@ def showAllEpisodes():
 
         if (oInputParameterHandler.exist('sSeason')):
             sSeason = oInputParameterHandler.getValue('sSeason')
-        
+
             sPattern = '<FORM name="episodeform' + sSeason + '">(.*?)</FORM>'
             aResult = cParser().parse(sHtmlContent, sPattern)
             sHtmlContent = aResult[1][0]
-        
+
     else:
         return
 
     sPattern = '<SELECT name="episode".*?>(.*?)</SELECT>'
     oParser = cParser()
-    
+
     aResult = oParser.parse(sHtmlContent, sPattern)
-    if (aResult[0] == True):
+    if aResult[0]:
         sPattern = '<OPTION value="([^"]+)".*?>([^<]+)</OPTION>'
-        aResult = oParser.parse(aResult[1][0],sPattern)
-        if (aResult[0] == True):
+        aResult = oParser.parse(aResult[1][0], sPattern)
+        if aResult[0]:
             for aEntry in aResult[1]:
                 sUrl = aEntry[0]
                 if not sUrl.startswith('http'):
                     sUrl = URL_MAIN + sUrl
                 sMovieTitle = aEntry[1].strip()
-                
+
                 oGuiElement = cGuiElement()
                 oGuiElement.setSiteName(SITE_IDENTIFIER)
                 oGuiElement.setFunction('showHostersSeries')
                 oGuiElement.setTitle(sMovieTitle)
 
-                oOutputParameterHandler = cOutputParameterHandler()                  
+                oOutputParameterHandler = cOutputParameterHandler()
                 oOutputParameterHandler.addParameter('sUrl', sUrl)
                 oOutputParameterHandler.addParameter('sMovieTitle', sMovieTitle)
-                
+
                 oGui.addFolder(oGuiElement, oOutputParameterHandler)
     oGui.setView('episodes')
-    oGui.setEndOfDirectory()    
-    
+    oGui.setEndOfDirectory()
+
+
 def showSearch():
     oGui = cGui()
 
-    sSearchText = oGui.showKeyBoard()
-    if (sSearchText != False and sSearchText != ''):
+    sSearchText = oGui.showKeyBoard().strip()
+    if (sSearchText is not False and sSearchText != ''):
         __callSearch(sSearchText)
     else:
         return
     oGui.setEndOfDirectory()
+
 
 def __callSearch(sSearchText):
     # get Security Key
     tmpUrl = 'http://www.movie2k.to/searchAutoCompleteNew.php?search=the'
     oRequest = cRequestHandler(tmpUrl)
     tmpHtml = oRequest.request()
-    
+
     oParser = cParser()
     aResult = oParser.parse(tmpHtml, '<a href="movies\.php\?list=search&securekey=([^&]+)&')
     sKey = ''
-    if (aResult[0] == True):
+    if aResult[0]:
         sKey = aResult[1][0]
     else:
-        return   
+        return
 
     import urllib
     searchEscape = urllib.quote(sSearchText, safe='/')
     sUrl = URL_SEARCH + '&securekey=' + sKey + '&search=' + searchEscape
     __parseMovieSimpleList(sUrl, 1)
+
 
 def __checkForNextPage(sHtmlContent, iCurrentPage):
     iNextPage = int(iCurrentPage) + 1
@@ -285,9 +300,10 @@ def __checkForNextPage(sHtmlContent, iCurrentPage):
 
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
-    if (aResult[0] == True):
+    if aResult[0]:
         return aResult[1][0]
     return False
+
 
 def showGenre():
     oGui = cGui()
@@ -304,13 +320,13 @@ def showGenre():
         oParser = cParser()
         aResult = oParser.parse(sHtmlContent, sPattern)
 
-        if (aResult[0] == True):
+        if aResult[0]:
             for aEntry in aResult[1]:
                 sUrl = aEntry[0].strip()
                 if not (sUrl.startswith('http')):
                     sUrl = URL_MAIN + sUrl
                 sTitle = aEntry[1] + ' (' + aEntry[2] + ')'
-                
+
                 oGuiElement = cGuiElement()
                 oGuiElement.setSiteName(SITE_IDENTIFIER)
                 oGuiElement.setFunction('parseMovieSimpleList')
@@ -322,10 +338,11 @@ def showGenre():
 
         oGui.setEndOfDirectory()
 
+
 def parseMovieSimpleList():
     oInputParameterHandler = cInputParameterHandler()
     oParser = cParser()
-    
+
     if (oInputParameterHandler.exist('iPage')):
         iPage = oInputParameterHandler.getValue('iPage')
     else:
@@ -340,7 +357,7 @@ def parseMovieSimpleList():
                 oRequest = cRequestHandler(sUrl)
                 sHtmlContent = oRequest.request()
                 aResult = oParser.parse(sHtmlContent, sPattern)
-                if aResult[0] == True:
+                if aResult[0]:
                     for aEntry in aResult[1]:
                         sUrl = str(aEntry[0]).strip()
                         if not (sUrl.startswith('http')):
@@ -350,80 +367,81 @@ def parseMovieSimpleList():
                     oRequest = cRequestHandler(sUrl)
                     sHtmlContent = oRequest.request()
                     aResult = oParser.parse(sHtmlContent, sPattern)
-                    if aResult[0] == True:
+                    if aResult[0]:
                         for aEntry in aResult[1]:
                             sUrl = str(aEntry[0]).strip()
                             if not (sUrl.startswith('http')):
                                 sUrl = URL_MAIN + sUrl
                             if aEntry[2] == sLanguageToken:
                                 break
-                                
+
             else:
                 oRequest = cRequestHandler(sUrl)
                 sHtmlContent = oRequest.request()
                 aResult = oParser.parse(sHtmlContent, sPattern)
-                if aResult[0] == True:
+                if aResult[0]:
                     sUrl = str(aResult[1][0][0]).strip()
                     if not (sUrl.startswith('http')):
                         sUrl = URL_MAIN + sUrl
                     oRequest = cRequestHandler(sUrl)
                     sHtmlContent = oRequest.request()
                     aResult = oParser.parse(sHtmlContent, sPattern)
-                    if aResult[0] == True:
+                    if aResult[0]:
                         sUrl = str(aResult[1][0][0]).strip()
                         if not (sUrl.startswith('http')):
                             sUrl = URL_MAIN + sUrl
             __showAllSeasons(sUrl)
-            
+
         else:
             __parseMovieSimpleList(sUrl, iPage)
-      
+
+
 def __parseMovieSimpleList(sUrl, iPage):
     oGui = cGui()
     oParser = cParser()
     oRequest = cRequestHandler(sUrl)
     sHtmlContent = __getHtmlContent(sUrl)
-    
+
     sPattern = '<TR.*?<TD.*?id="tdmovies".*?<a href="([^"]+)">(.*?)\s*</a>.*?<img border=0 src="http://[^/]+/img/([^"]+)".*?</TR>'
     aResult = oParser.parse(sHtmlContent, sPattern)
-    
+
     pattern = "coverPreview([0-9]+)\"\)\.hover.*?<p id='coverPreview'><img src='(.*?)' alt='Image preview'"
     result = re.finditer(pattern, sHtmlContent, re.DOTALL)
     thumbs = dict()
     for set in result:
         id, thumb = set.groups()
-        thumbs.update({id:thumb})
-    if (aResult[0] == True):
+        thumbs.update({id: thumb})
+    if aResult[0]:
         for aEntry in aResult[1]:
             newUrl = aEntry[0].strip()
             if not (newUrl.startswith('http')):
                 newUrl = URL_MAIN + newUrl
-            sMovieTitle =  cUtil().unescape(aEntry[1].strip())
+            sMovieTitle = cUtil().unescape(aEntry[1].strip())
             sMovieTitle = ' '.join(sMovieTitle.split())
             sMovieTitle = ' '.join(sMovieTitle.split())
             sLanguageToken = aEntry[2]
-            
-            sTitle = sMovieTitle + __getLanguage(sLanguageToken.replace('.png','')) 
-            
+
+            sTitle = sMovieTitle + __getLanguage(sLanguageToken.replace('.png', ''))
+
             oGuiElement = cGuiElement()
             oGuiElement.setSiteName(SITE_IDENTIFIER)
             oGuiElement.setTitle(sTitle)
 
-            oOutputParameterHandler = cOutputParameterHandler()            
+            oOutputParameterHandler = cOutputParameterHandler()
             oOutputParameterHandler.addParameter('sMovieTitle', sMovieTitle)
             oOutputParameterHandler.addParameter('sUrl', newUrl)
-            
+
             type, id = getTypeAndID(newUrl)
             if type == 'Serie':
                 if sUrl.find(URL_SERIES_TOP) != -1:
                     oGuiElement.setFunction('showHostersSeries')
                 elif sUrl.find('tvshows-') != -1:
-                    oOutputParameterHandler.addParameter('sLanguageToken',sLanguageToken)
+                    oOutputParameterHandler.addParameter('sLanguageToken', sLanguageToken)
                     oGuiElement.setFunction('parseMovieSimpleList')
                 else:
                     oGuiElement.setFunction('showAllSeasons')
             elif type == 'Film':
-                if META == True:
+                if META:
                     oMetaget = metahandlers.MetaData()
                     meta = oMetaget.get_meta('movie', sMovieTitle)
                     oGuiElement.setItemValues(meta)
@@ -431,22 +449,22 @@ def __parseMovieSimpleList(sUrl, iPage):
                     oGuiElement.setFanart(meta['backdrop_url'])
                 oGuiElement.setFunction('showHosters')
             else:
-                oOutputParameterHandler.addParameter('sLanguageToken',sLanguageToken)
+                oOutputParameterHandler.addParameter('sLanguageToken', sLanguageToken)
                 oGuiElement.setFunction('parseMovieSimpleList')
-            if id in thumbs and META == False:
+            if id in thumbs and not META:
                 oGuiElement.setThumbnail(thumbs[id])
             oGui.addFolder(oGuiElement, oOutputParameterHandler)
-    
+
     sNextUrl = __checkForNextPage(sHtmlContent, iPage)
-    if (sNextUrl != False):
+    if sNextUrl:
         oGuiElement = cGuiElement()
         oGuiElement.setSiteName(SITE_IDENTIFIER)
         oGuiElement.setFunction('parseMovieSimpleList')
         oGuiElement.setTitle('next ..')
-        
+
         if (sNextUrl.startswith(URL_MAIN)):
-            sNextUrl = sNextUrl.replace(URL_MAIN,'')
-        
+            sNextUrl = sNextUrl.replace(URL_MAIN, '')
+
         oOutputParameterHandler = cOutputParameterHandler()
         oOutputParameterHandler.addParameter('sUrl', URL_MAIN + sNextUrl)
         oOutputParameterHandler.addParameter('iPage', int(iPage) + 1)
@@ -454,7 +472,8 @@ def __parseMovieSimpleList(sUrl, iPage):
     oGui.setView('movies')
     oGui.setEndOfDirectory()
 
-def getTypeAndID(url):    
+
+def getTypeAndID(url):
     #####################################################################
     # Examples:
     # http://www.movie2k.to/Die-Simpsons-online-serie-656673.html
@@ -464,40 +483,41 @@ def getTypeAndID(url):
     #####################################################################
     sPattern = '([^-]+)-(\d+).html$'
     aResult = cParser().parse(url, sPattern)
-    if aResult[0] == True:
+    if aResult[0]:
         match = aResult[1][0]
         type = match[0]
         id = match[1]
-        if type in ['serie','tvshow','tvshows']:
-            return 'Serie',id
-        elif type in ['film','movie']:
-            return 'Film',id
+        if type in ['serie', 'tvshow', 'tvshows']:
+            return 'Serie', id
+        elif type in ['film', 'movie']:
+            return 'Film', id
 
-    return '',''
-    
+    return '', ''
+
+
 def showFeaturedMovies():
     oInputParameterHandler = cInputParameterHandler()
     if (oInputParameterHandler.exist('sUrl')):
         sUrl = oInputParameterHandler.getValue('sUrl')
-        sHtmlContent = __getHtmlContent(sUrl = sUrl)
-        sPattern = '<div style="float:left">\s*<a href="([^"]+)".{0,1}><img src="([^"]+)".*?alt="([^"]+)".*?<img src="http://img.movie2k.to/img/(.*?).png".*?IM'+ \
-        'DB Rating: <a href="http://www.imdb.de/title/[0-9a-zA-z]+" target="_blank">(.*?)</a>.*?class="info"><STRONG>.*?</STRONG><BR>(.*?)(?:<BR>|</div>)'
+        sHtmlContent = __getHtmlContent(sUrl=sUrl)
+        sPattern = '<div style="float:left">\s*<a href="([^"]+)".{0,1}><img src="([^"]+)".*?alt="([^"]+)".*?<img src="http://img.movie2k.to/img/(.*?).png".*?IM' + \
+            'DB Rating: <a href="http://www.imdb.de/title/[0-9a-zA-z]+" target="_blank">(.*?)</a>.*?class="info"><STRONG>.*?</STRONG><BR>(.*?)(?:<BR>|</div>)'
         #'<div style="float:left">\s*<a href="([^"]+)".{0,1}><img src="([^"]+)".*?alt="([^"]+)".*?<img src="http://img.movie2k.to/img/(.*?).png"'
         aResult = cParser().parse(sHtmlContent, sPattern)
-        if (aResult[0] == True):
+        if aResult[0]:
             oGui = cGui()
             for aEntry in aResult[1]:
                 newUrl = aEntry[0]
                 if not (newUrl.startswith('http')):
                     newUrl = URL_MAIN + newUrl
-                
-                sThumbnail = aEntry[1]             
-                sMovieTitle = aEntry[2].strip().replace('kostenlos', '')                
-                
+
+                sThumbnail = aEntry[1]
+                sMovieTitle = aEntry[2].strip().replace('kostenlos', '')
+
                 oGuiElement = cGuiElement()
                 oGuiElement.setSiteName(SITE_IDENTIFIER)
-                oGuiElement.setFunction('showHosters')               
-                if META == True:
+                oGuiElement.setFunction('showHosters')
+                if META:
                     oMetaget = metahandlers.MetaData()
                     meta = oMetaget.get_meta('movie', sMovieTitle)
                     oGuiElement.setItemValues(meta)
@@ -508,17 +528,18 @@ def showFeaturedMovies():
                     sDescription = cUtil().unescape(aEntry[5].strip().decode('utf-8')).encode('utf-8')
                     sDescription = cUtil().removeHtmlTags(sDescription)
                     oGuiElement.setDescription(sDescription)
-                    oGuiElement.addItemValues('Rating',fRating)
+                    oGuiElement.addItemValues('Rating', fRating)
                     oGuiElement.setThumbnail(sThumbnail)
-                sTitle = sMovieTitle +  __getLanguage(aEntry[3])
-                oGuiElement.setTitle(sTitle)             
+                sTitle = sMovieTitle + __getLanguage(aEntry[3])
+                oGuiElement.setTitle(sTitle)
                 oOutputParameterHandler = cOutputParameterHandler()
                 oOutputParameterHandler.addParameter('sUrl', newUrl)
                 oOutputParameterHandler.addParameter('sMovieTitle', sMovieTitle)
-                
+
                 oGui.addFolder(oGuiElement, oOutputParameterHandler)
             oGui.setView('movies')
             oGui.setEndOfDirectory()
+
 
 def showFeaturedSeries():
     oInputParameterHandler = cInputParameterHandler()
@@ -528,38 +549,37 @@ def showFeaturedSeries():
         oRequest = cRequestHandler(sUrl)
         #oRequest.addHeaderEntry('Cookie', 'lang=us;onlylanguage=en;')
         sHtmlContent = oRequest.request()
-        
+
         sPattern = '<div id="maincontenttvshow">(.*?)<BR><BR>'
-        aResult = cParser().parse(sHtmlContent,sPattern)
-        if aResult[0] == True:
+        aResult = cParser().parse(sHtmlContent, sPattern)
+        if aResult[0]:
             sPattern = '<div style="float:left"><a href="([^"]+)"><img src="([^"]+)" border=0.*?title="([^"]+)"></a>.*?<img src="http://img.movie2k.to/img/(.*?).png"'
             sHtmlContent = aResult[1][0]
             aResult = cParser().parse(sHtmlContent, sPattern)
-            if aResult[0] == True:
+            if aResult[0]:
                 oGui = cGui()
                 for aEntry in aResult[1]:
                     newUrl = str(aEntry[0]).strip()
                     if not (newUrl.startswith('http')):
                         newUrl = URL_MAIN + newUrl
                     sThumbnail = aEntry[1]
-                    sMovieTitle = aEntry[2].strip().replace('\t', '')    
-                     
-                    sTitle = sMovieTitle +  __getLanguage(aEntry[3])
-                     
+                    sMovieTitle = aEntry[2].strip().replace('\t', '')
+                    sTitle = sMovieTitle + __getLanguage(aEntry[3])
+
                     oGuiElement = cGuiElement()
                     oGuiElement.setSiteName(SITE_IDENTIFIER)
                     oGuiElement.setFunction('showAllSeasons')
                     oGuiElement.setTitle(sTitle)
                     oGuiElement.setThumbnail(sThumbnail)
-                    
+
                     oOutputParameterHandler = cOutputParameterHandler()
                     oOutputParameterHandler.addParameter('sUrl', newUrl)
-                    
+
                     oGui.addFolder(oGuiElement, oOutputParameterHandler)
                 oGui.setView('tvshows')
                 oGui.setEndOfDirectory()
-        
-        
+
+
 def createInfo(oGui='', sHtmlContent=''):
     # oInputParameterHandler = cInputParameterHandler()
     # if not oInputParameterHandler.exist('sUrl') or not oInputParameterHandler.exist('sMovieTitle'):
@@ -570,7 +590,7 @@ def createInfo(oGui='', sHtmlContent=''):
     sPattern = '<img src="(http://img.movie2k.to/thumbs/[^"]+)".*?<div class="moviedescription">(.*?)<'
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
-    if (aResult[0] == True and not oGui==''):
+    if aResult[0] and not oGui == '':
         for aEntry in aResult[1]:
             oGuiElement = cGuiElement()
             oGuiElement.setSiteName(SITE_IDENTIFIER)
@@ -578,86 +598,89 @@ def createInfo(oGui='', sHtmlContent=''):
             oGuiElement.setThumbnail(aEntry[0])
             oGuiElement.setFunction('dummyFolder')
             oGuiElement.setDescription(cUtil().removeHtmlTags(aEntry[1]).strip())
-            oGui.addFolder(oGuiElement,bIsFolder=False)
+            oGui.addFolder(oGuiElement, bIsFolder=False)
     return
+
 
 def dummyFolder():
     oGui = cGui()
     oGui.setEndOfDirectory()
+
 
 def showHostersSeries():
     oInputParameterHandler = cInputParameterHandler()
     if (oInputParameterHandler.exist('sUrl') and oInputParameterHandler.exist('sMovieTitle')):
         sUrl = oInputParameterHandler.getValue('sUrl')
         sMovieTitle = oInputParameterHandler.getValue('sMovieTitle')
-        
-        sHtmlContent = cRequestHandler(sUrl).request()        
+
+        sHtmlContent = cRequestHandler(sUrl).request()
         sPattern = '<tr id="tablemoviesindex2".*?<a href="([^"]+)".*? width="16">([^<]+)</a></td></tr>'
-        aResult = cParser().parse(sHtmlContent.replace('\\',''), sPattern)       
-        if (aResult[0] == True):
+        aResult = cParser().parse(sHtmlContent.replace('\\', ''), sPattern)
+        if aResult[0]:
             oGui = cGui()
             createInfo(oGui, sHtmlContent)
-            for aEntry in aResult[1]:                
+            for aEntry in aResult[1]:
                 sHoster = aEntry[1].strip()
-                if (cHosterHandler().getHoster2(sHoster.lower())!=False):
+                if cHosterHandler().getHoster2(sHoster.lower()) is not False:
                     sUrl = URL_MAIN + aEntry[0]
                     oGuiElement = cGuiElement()
                     oGuiElement.setSiteName(SITE_IDENTIFIER)
-                    oGuiElement.setFunction('showHoster')               
+                    oGuiElement.setFunction('showHoster')
                     oGuiElement.setTitle(sHoster)
 
                     oOutputParameterHandler = cOutputParameterHandler()
                     oOutputParameterHandler.addParameter('sUrl', sUrl)
                     oOutputParameterHandler.addParameter('sHoster', sHoster)
                     oOutputParameterHandler.addParameter('sMovieTitle', sMovieTitle)
-                    
+
                     oGui.addFolder(oGuiElement, oOutputParameterHandler)
             oGui.setView()
-            oGui.setEndOfDirectory()   
-        
+            oGui.setEndOfDirectory()
+
 
 def showHosters():
     oInputParameterHandler = cInputParameterHandler()
     if (oInputParameterHandler.exist('sUrl') and oInputParameterHandler.exist('sMovieTitle')):
         sUrl = oInputParameterHandler.getValue('sUrl')
         sMovieTitle = oInputParameterHandler.getValue('sMovieTitle')
-        
-        sHtmlContent = cRequestHandler(sUrl).request() 
+
+        sHtmlContent = cRequestHandler(sUrl).request()
         sPattern = '<tr id="tablemoviesindex2">.*?<a href="([^"]+)">([^<]+)<.*?alt="(.*?) .*?width="16">.*?</a>.*?alt="([^"]+)"'
-        aResult = cParser().parse(sHtmlContent.replace('\\',''), sPattern)
-        if (aResult[0] == True):
+        aResult = cParser().parse(sHtmlContent.replace('\\', ''), sPattern)
+        if aResult[0]:
             oGui = cGui()
             createInfo(oGui, sHtmlContent)
             for aEntry in aResult[1]:
                 sHoster = aEntry[2].strip()
-                if (cHosterHandler().getHoster2(sHoster.lower())!=False):
+                if cHosterHandler().getHoster2(sHoster.lower()):
                     sUrl = URL_MAIN + aEntry[0]
                     sTitle = aEntry[1] + ' - ' + sHoster + ' - ' + aEntry[3]
-                    
+
                     oGuiElement = cGuiElement()
                     oGuiElement.setSiteName(SITE_IDENTIFIER)
-                    oGuiElement.setFunction('showHoster')               
+                    oGuiElement.setFunction('showHoster')
                     oGuiElement.setTitle(sTitle)
 
                     oOutputParameterHandler = cOutputParameterHandler()
                     oOutputParameterHandler.addParameter('sUrl', sUrl)
                     oOutputParameterHandler.addParameter('sHoster', sHoster)
                     oOutputParameterHandler.addParameter('sMovieTitle', sMovieTitle)
-                    
+
                     oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
-            oGui.setEndOfDirectory()   
+            oGui.setEndOfDirectory()
+
 
 def showHoster():
     oInputParameterHandler = cInputParameterHandler()
     if not (oInputParameterHandler.exist('sUrl') and oInputParameterHandler.exist('sHoster') and oInputParameterHandler.exist('sMovieTitle')):
         return
-    oGui = cGui()                
+    oGui = cGui()
 
     sUrl = oInputParameterHandler.getValue('sUrl')
     sHoster = oInputParameterHandler.getValue('sHoster')
     sMovieTitle = oInputParameterHandler.getValue('sMovieTitle')
-    
+
     #type,id = getTypeAndID(sUrl)
     sHtmlContent = cRequestHandler(sUrl).request()
 
@@ -668,43 +691,37 @@ def showHoster():
         for aEntry in aResult[1]:
             oGuiElement = cGuiElement()
             oGuiElement.setSiteName(SITE_IDENTIFIER)
-            oGuiElement.setFunction('parseHosterDirect')               
+            oGuiElement.setFunction('parseHosterDirect')
             oGuiElement.setTitle(sMovieTitle + ' Part ' + aEntry[2])
 
             oOutputParameterHandler = cOutputParameterHandler()
             oOutputParameterHandler.addParameter('sUrl', URL_MAIN+aEntry[0])
             oOutputParameterHandler.addParameter('sHoster', sHoster.lower())
             oOutputParameterHandler.addParameter('sMovieTitle', sMovieTitle)
-            
+
             oGui.addFolder(oGuiElement, oOutputParameterHandler)
         oGui.setEndOfDirectory()
     else:
         parseHosterDirect(sUrl, sHoster.lower(), sMovieTitle)
-        
-    # elif type == 'Serie':
-        # sPattern = '<SELECT name="hosterlist"(.*?)</SELECT>'
-        # aResult = cParser().parse(sHtmlContent,sPattern)      
-        # parseHosterDirect(sUrl, sHoster.lower(), sMovieTitle)
-            
-     
-        
-    
+
+
 def __getMovieTitle(sHtmlContent):
     sPattern = '<title>(.*?) online anschauen.*?</title>'
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
 
-    if (aResult[0] == True):
+    if aResult[0]:
         return str(aResult[1][0]).strip()
     else:
         sPattern = 'Watch (.*?) online.*?</title>'
         aResult = oParser.parse(sHtmlContent, sPattern)
 
-        if (aResult[0] == True):
+        if aResult[0]:
             return str(aResult[1][0]).strip()
     return False
 
-def parseHosterDirect(sUrl = '', sHoster = '', sMovieTitle = ''):
+
+def parseHosterDirect(sUrl='', sHoster='', sMovieTitle=''):
     if (sUrl == '' and sHoster == ''):
         oInputParameterHandler = cInputParameterHandler()
         if not (oInputParameterHandler.exist('sUrl') and oInputParameterHandler.exist('sHoster')):
@@ -712,29 +729,31 @@ def parseHosterDirect(sUrl = '', sHoster = '', sMovieTitle = ''):
         sUrl = oInputParameterHandler.getValue('sUrl')
         sHoster = oInputParameterHandler.getValue('sHoster')
         sMovieTitle = oInputParameterHandler.getValue('sMovieTitle')
-        
+
     oHoster = cHosterHandler().getHoster2(sHoster)
-    if (oHoster == False):
+    if not oHoster:
         return False
-    
+
     oParser = cParser()
     #Link oder Iframe suchen der den Hosternamen enthält
     sPattern = 'id="maincontent5".*?(?:href|src)="([^<]+'+sHoster.lower()+'\.[^<"]+)"'
     oRequest = cRequestHandler(sUrl)
     sHtmlContent = oRequest.request()
     aResult = oParser.parse(sHtmlContent, sPattern)
-    if (aResult[0] == True):
-        sStreamUrl = aResult[1][0]    
+    if aResult[0]:
+        sStreamUrl = aResult[1][0]
         oGui = cGui()
-        cHosterGui().showHosterMenuDirect(oGui, oHoster, sStreamUrl, sFileName=sMovieTitle) 
+        cHosterGui().showHosterMenuDirect(oGui, oHoster, sStreamUrl, sFileName=sMovieTitle)
         oGui.setEndOfDirectory()
-      
+
     return False
-    
+
+
 def __getLanguage(sString):
     if (sString == 'us_ger_small'):
         return ' (DE)'
     return ' (EN)'
+
 
 def __createMainMenuItem(oGui, sTitle, sUrl, sFunction):
     oGuiElement = cGuiElement()

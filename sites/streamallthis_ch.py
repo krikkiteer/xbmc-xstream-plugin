@@ -21,7 +21,7 @@ URL_MAIN = 'http://streamallthis.ch/'
 URL_SERIES = 'http://streamallthis.ch/tv-shows-list.html'
 URL_LASTEPISODES = str(URL_MAIN)
 CACHE_FILE_SERIES = '/tmp/streamallthis_ch_shows'
-CACHE_TIME_SERIES = 3600*12  # cache for 12 hours by default..
+CACHE_TIME_SERIES = 3600*6  # cache for 6 hours by default..
 CACHE_FILE_LASTEPISODES = '/tmp/streamallthis_ch_lastepisodes'
 CACHE_TIME_LASTEPISODES = 3600*2  # cache for 2 hours by default..
 

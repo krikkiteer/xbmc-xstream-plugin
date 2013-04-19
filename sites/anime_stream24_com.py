@@ -7,12 +7,11 @@ from resources.lib.handler.inputParameterHandler import cInputParameterHandler
 from resources.lib.handler.outputParameterHandler import cOutputParameterHandler
 from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.parser import cParser
-import logger
 
 SITE_IDENTIFIER = 'anime_stream24_com'
 SITE_NAME = 'Anime-Stream24.com'
-
 URL_MAIN = 'http://www.anime-stream24.com'
+
 
 def load():
     oGui = cGui()
@@ -27,12 +26,14 @@ def load():
 
     oGui.setEndOfDirectory()
 
-def __createMenuEntry(oGui, sFunction, sLabel, oOutputParameterHandler = ''):
+
+def __createMenuEntry(oGui, sFunction, sLabel, oOutputParameterHandler=''):
     oGuiElement = cGuiElement()
     oGuiElement.setSiteName(SITE_IDENTIFIER)
     oGuiElement.setFunction(sFunction)
     oGuiElement.setTitle(sLabel)
     oGui.addFolder(oGuiElement, oOutputParameterHandler)
+
 
 def showCurrentMovies():
     oGui = cGui()
@@ -40,28 +41,28 @@ def showCurrentMovies():
     sUrl = oInputParameterHandler.getValue('siteUrl')
 
     oRequestHandler = cRequestHandler(sUrl)
-    sHtmlContent = oRequestHandler.request();
+    sHtmlContent = oRequestHandler.request()
 
     sPattern = '<h2>Aktuelle Anime Serienfolgen</h2>(.*?)</ul>'
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
 
-    if (aResult[0] == True):
+    if aResult[0]:
         sHtmlContent = aResult[1][0]
 
         sPattern = "<a href='([^']+)'>(.*?)<"
         oParser = cParser()
         aResult = oParser.parse(sHtmlContent, sPattern)
-        if (aResult[0] == True):
+        if aResult[0]:
             for aEntry in aResult[1]:
                 sSiteUrl = str(aEntry[0])
                 sMovieTitle = str(aEntry[1])
-                
+
                 oGuiElement = cGuiElement()
                 oGuiElement.setSiteName(SITE_IDENTIFIER)
                 oGuiElement.setFunction('showMovieTitles')
-                oGuiElement.setTitle(str(aEntry[1]))                
-                
+                oGuiElement.setTitle(str(aEntry[1]))
+
                 oOutputParameterHandler = cOutputParameterHandler()
                 oOutputParameterHandler.addParameter('siteUrl', sSiteUrl)
                 oOutputParameterHandler.addParameter('sMovieTitle', sMovieTitle)
@@ -69,25 +70,26 @@ def showCurrentMovies():
 
     oGui.setEndOfDirectory()
 
+
 def showAnimesAlphabetic():
     oGui = cGui()
     oInputParameterHandler = cInputParameterHandler()
     sUrl = oInputParameterHandler.getValue('siteUrl')
 
     oRequestHandler = cRequestHandler(sUrl)
-    sHtmlContent = oRequestHandler.request();
+    sHtmlContent = oRequestHandler.request()
 
     sPattern = '<h2>Animes von A - Z</h2>(.*?)</select>'
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
 
-    if (aResult[0] == True):
+    if aResult[0]:
         sHtmlContent = aResult[1][0]
 
         sPattern = "<option value='([^']+)'>(.*?)<"
         oParser = cParser()
         aResult = oParser.parse(sHtmlContent, sPattern)
-        if (aResult[0] == True):
+        if aResult[0]:
             for aEntry in aResult[1]:
                 oGuiElement = cGuiElement()
                 oGuiElement.setSiteName(SITE_IDENTIFIER)
@@ -100,22 +102,23 @@ def showAnimesAlphabetic():
 
     oGui.setEndOfDirectory()
 
+
 def showMovieTitles():
     oGui = cGui()
     oInputParameterHandler = cInputParameterHandler()
     sUrl = oInputParameterHandler.getValue('siteUrl')
-        
+
     sUrl = sUrl.replace(' ', '%20').replace(':', '%3A').replace('+', '%2B')
     sUrl = sUrl.replace('http%3A//', 'http://')
-    
+
     oRequestHandler = cRequestHandler(sUrl)
-    sHtmlContent = oRequestHandler.request();
+    sHtmlContent = oRequestHandler.request()
 
     sPattern = "<h\d+ class='title-only'><a href='([^']+)'>(.*?)</a></h\d+>"
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
 
-    if (aResult[0] == True):
+    if aResult[0]:
         for aEntry in aResult[1]:
             oGuiElement = cGuiElement()
             oGuiElement.setSiteName(SITE_IDENTIFIER)
@@ -124,11 +127,11 @@ def showMovieTitles():
 
             oOutputParameterHandler = cOutputParameterHandler()
             oOutputParameterHandler.addParameter('siteUrl', str(aEntry[0]))
-	    oOutputParameterHandler.addParameter('sMovieTitle', str(aEntry[1]))
+            oOutputParameterHandler.addParameter('sMovieTitle', str(aEntry[1]))
             oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
     sNextPage = __checkForNextPage(sHtmlContent)
-    if (sNextPage != False):       
+    if sNextPage:
         oGuiElement = cGuiElement()
         oGuiElement.setSiteName(SITE_IDENTIFIER)
         oGuiElement.setFunction('showMovieTitles')
@@ -140,14 +143,16 @@ def showMovieTitles():
 
     oGui.setEndOfDirectory()
 
+
 def __checkForNextPage(sHtmlContent):
     sPattern = "<a class='blog-pager-older-link' href='([^']+)'"
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
-    if (aResult[0] == True):
+    if aResult[0]:
         return aResult[1][0]
 
     return False
+
 
 def showHosters():
     oGui = cGui()
@@ -156,28 +161,28 @@ def showHosters():
     sMovieTitle = oInputParameterHandler.getValue('sMovieTitle')
 
     oRequestHandler = cRequestHandler(sUrl)
-    sHtmlContent = oRequestHandler.request();
+    sHtmlContent = oRequestHandler.request()
 
     sPattern = "<h\d+ class='post-title entry-title'>(.*?)<div style='clear: both;'></div>"
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
 
-    if (aResult[0] == True):
+    if aResult[0]:
         sHtmlContent = aResult[1][0]
         sHtmlContent = str(sHtmlContent).lower()
 
         sPattern = "src=([^ ]+) "
         oParser = cParser()
         aResult = oParser.parse(sHtmlContent, sPattern)
-        if (aResult[0] == True):
+        if aResult[0]:
             for aEntry in aResult[1]:
-                sHosterUrl = str(aEntry).replace("'", '').replace('"', '')               
+                sHosterUrl = str(aEntry).replace("'", '').replace('"', '')
                 hosterPattern = '([^\.]+)\.(?:com|eu|net|de|ru)?/'
                 aResult = cParser().parse(sHosterUrl, hosterPattern)
-                if aResult[0] == True:
+                if aResult[0]:
                     hosterId = aResult[1][0]
-                    oHoster = cHosterHandler().getHoster2(hosterId)                              
-                    if (oHoster != False):
+                    oHoster = cHosterHandler().getHoster2(hosterId)
+                    if oHoster:
                         oGuiElement = cGuiElement()
                         oGuiElement.setSiteName(SITE_IDENTIFIER)
                         oGuiElement.setFunction('showHosterMenu')
@@ -190,14 +195,15 @@ def showHosters():
                         oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
     oGui.setEndOfDirectory()
-    
+
+
 def showHosterMenu():
     oGui = cGui()
 
     oInputParameterHandler = cInputParameterHandler()
-    sTitle = oInputParameterHandler.getValue('Title')	
+    sTitle = oInputParameterHandler.getValue('Title')
     sUrl = oInputParameterHandler.getValue('siteUrl')
     sHoster = oInputParameterHandler.getValue('hosterName')
-    
+
     cHosterGui().showHosterMenuDirect(oGui, sHoster, sUrl, sFileName=sTitle)
     oGui.setEndOfDirectory()

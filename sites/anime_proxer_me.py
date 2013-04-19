@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from resources.lib.util import cUtil
 from resources.lib.gui.hoster import cHosterGui
 from resources.lib.handler.hosterHandler import cHosterHandler
@@ -7,7 +8,7 @@ from resources.lib.handler.inputParameterHandler import cInputParameterHandler
 from resources.lib.handler.outputParameterHandler import cOutputParameterHandler
 from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.parser import cParser
-import logger
+
 
 SITE_IDENTIFIER = 'anime_proxer_me'
 SITE_NAME = 'Proxer.Me'
@@ -17,6 +18,7 @@ URL_ANIME_LIST = 'http://proxer.me/anime'
 URL_MOVIES = 'http://proxer.me/anime?set=movie'
 URL_OVA = 'http://proxer.me/anime?set=ova'
 URL_SEARCH = 'http://proxer.me/animesuche.html?set=suche&sprache=alle&genre='
+
 
 def load():
     oGui = cGui()
@@ -37,31 +39,34 @@ def load():
     __createMenuEntry(oGui, 'showCharacters', 'Ovas', oOutputParameterHandler)
 
     oOutputParameterHandler = cOutputParameterHandler()
-    oOutputParameterHandler.addParameter('siteUrl', URL_SEARCH)    
+    oOutputParameterHandler.addParameter('siteUrl', URL_SEARCH)
     __createMenuEntry(oGui, 'showSearch', 'Suche', oOutputParameterHandler)
 
     oGui.setEndOfDirectory()
+
 
 def showSearch():
     oGui = cGui()
 
     sSearchText = oGui.showKeyBoard()
-    if (sSearchText != False):
+    if sSearchText:
         sSearchText = sSearchText.replace(' ', '+')
-        sUrl = URL_SEARCH + '&name=' + sSearchText        
+        sUrl = URL_SEARCH + '&name=' + sSearchText
         __parseList(sUrl, 'getAvaiableTypes')
 
     oGui.setEndOfDirectory()
 
-def __createMenuEntry(oGui, sFunction, sLabel, oOutputParameterHandler = ''):
+
+def __createMenuEntry(oGui, sFunction, sLabel, oOutputParameterHandler=''):
     oGuiElement = cGuiElement()
     oGuiElement.setSiteName(SITE_IDENTIFIER)
     oGuiElement.setFunction(sFunction)
     oGuiElement.setTitle(sLabel)
     oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
+
 def showCharacters():
-    oInputParameterHandler = cInputParameterHandler()    
+    oInputParameterHandler = cInputParameterHandler()
     sSiteUrl = oInputParameterHandler.getValue('siteUrl')
     sNextFunction = oInputParameterHandler.getValue('nextFunction')
 
@@ -96,13 +101,14 @@ def showCharacters():
 
     oGui.setEndOfDirectory()
 
+
 def __createCharacters(oGui, sCharacter, sSiteUrl, sNextFunction):
     oGuiElement = cGuiElement()
     oGuiElement.setSiteName(SITE_IDENTIFIER)
     oGuiElement.setFunction('parseList')
     oGuiElement.setTitle(sCharacter)
 
-    if sSiteUrl== URL_ANIME_LIST:
+    if sSiteUrl == URL_ANIME_LIST:
         sSiteUrl += '?set=abc'
     sUrl = sSiteUrl + '&abc=' + str(sCharacter) + '#liste'
 
@@ -111,25 +117,25 @@ def __createCharacters(oGui, sCharacter, sSiteUrl, sNextFunction):
     oOutputParameterHandler.addParameter('nextFunction', sNextFunction)
     oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
+
 def parseList():
     oInputParameterHandler = cInputParameterHandler()
     sUrl = oInputParameterHandler.getValue('siteUrl')
     sNextFunction = oInputParameterHandler.getValue('nextFunction')
     __parseList(sUrl, sNextFunction)
 
+
 def __parseList(sUrl, sNextFunction):
-    
-    
     oRequestHandler = cRequestHandler(sUrl)
-    sHtmlContent = oRequestHandler.request();
+    sHtmlContent = oRequestHandler.request()
     sHtmlContent = sHtmlContent.replace('\\', '')
-    
+
     sPattern = '<tr\s*align=left onmouseover="Tip\(\'<img src=\'(.*?)\'.*?<td ><a href="([^"]+)".*?>(.*?)</a></td><td>.*?</td><td>.*?</td><td>(.*?)</td><td>.*?</td><td>(.*?)</td><td>(.*?)</td></tr>'
-    
+
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
-    
-    if (aResult[0] == True):
+
+    if aResult[0]:
         oGui = cGui()
         for aEntry in aResult[1]:
             oGuiElement = cGuiElement()
@@ -144,11 +150,12 @@ def __parseList(sUrl, sNextFunction):
 
             oGuiElement.setTitle(sTitle)
 
-            oOutputParameterHandler = cOutputParameterHandler()            
+            oOutputParameterHandler = cOutputParameterHandler()
             oOutputParameterHandler.addParameter('siteUrl', URL_MAIN + str(aEntry[1]).replace('#top', ''))
             oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
         oGui.setEndOfDirectory()
+
 
 def getAvaiableTypes():
     oGui = cGui()
@@ -156,13 +163,12 @@ def getAvaiableTypes():
     sUrl = oInputParameterHandler.getValue('siteUrl')
     sUrl = sUrl.replace('&amp;', '&')
 
-
     oRequestHandler = cRequestHandler(sUrl)
-    sHtmlContent = oRequestHandler.request();
+    sHtmlContent = oRequestHandler.request()
 
     sPattern = 'top">SERIE</a>(.*?)>'
     __getAvaiableTypes(oGui, sUrl, sHtmlContent, sPattern, 'Serie', 'showSeries')
-    
+
     sPattern = 'top">MOVIE</a>(.*?)>'
     __getAvaiableTypes(oGui, sUrl, sHtmlContent, sPattern, 'Movie', 'showMovies')
 
@@ -171,10 +177,11 @@ def getAvaiableTypes():
 
     oGui.setEndOfDirectory()
 
+
 def __getAvaiableTypes(oGui, sUrl, sHtmlContent, sPattern, sTitle, sNextFunction):
     oParser = cParser()
-    aResult = oParser.parse(sHtmlContent, sPattern)    
-    if (aResult[0] == True):
+    aResult = oParser.parse(sHtmlContent, sPattern)
+    if aResult[0]:
         oGuiElement = cGuiElement()
         oGuiElement.setSiteName(SITE_IDENTIFIER)
         oGuiElement.setFunction(sNextFunction)
@@ -185,7 +192,8 @@ def __getAvaiableTypes(oGui, sUrl, sHtmlContent, sPattern, sTitle, sNextFunction
         oOutputParameterHandler.addParameter('showSeries', sNextFunction)
         oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
-def showSeries():    
+
+def showSeries():
     oInputParameterHandler = cInputParameterHandler()
 
     iPage = 1
@@ -193,9 +201,8 @@ def showSeries():
         iPage = oInputParameterHandler.getValue('page')
 
     sUrl = oInputParameterHandler.getValue('siteUrl')
-    print sUrl
-    #sUrl = sUrl + '&set=serie'    
     __parseMediaSite(sUrl, iPage)
+
 
 def showMovies():
     oInputParameterHandler = cInputParameterHandler()
@@ -205,8 +212,9 @@ def showMovies():
         iPage = oInputParameterHandler.getValue('page')
 
     sUrl = oInputParameterHandler.getValue('siteUrl')
-    sUrl = sUrl + '&set=movie'    
+    sUrl = sUrl + '&set=movie'
     __parseMediaSite(sUrl, iPage)
+
 
 def showOvas():
     oInputParameterHandler = cInputParameterHandler()
@@ -216,17 +224,19 @@ def showOvas():
         iPage = oInputParameterHandler.getValue('page')
 
     sUrl = oInputParameterHandler.getValue('siteUrl')
-    sUrl = sUrl + '&set=ova'    
+    sUrl = sUrl + '&set=ova'
     __parseMediaSite(sUrl, iPage)
+
 
 def showNextPage():
     oInputParameterHandler = cInputParameterHandler()
     sUrl = oInputParameterHandler.getValue('siteUrl')
     iPage = 1
     if (oInputParameterHandler.exist('page')):
-	iPage = oInputParameterHandler.getValue('page')
+        iPage = oInputParameterHandler.getValue('page')
 
     __parseMediaSite(sUrl, iPage)
+
 
 def __parseMediaSite(sUrl, iPage):
     sCurrentUrl = sUrl + '&s=list&p=' + str(iPage)+'#top'
@@ -234,24 +244,19 @@ def __parseMediaSite(sUrl, iPage):
     oRequestHandler = cRequestHandler(sCurrentUrl)
     sHtmlContent = oRequestHandler.request()
 
-    sPattern = '(?:id="box-table-a"|id=box-table-a)(.*?)</table>'  
+    sPattern = '(?:id="box-table-a"|id=box-table-a)(.*?)</table>'
 
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
-    
-    # if (aResult[0] == False):
-        # sPattern = 'id=box-table-a(.*?)</table>'
-        # oParser = cParser()
-        # aResult = oParser.parse(sHtmlContent, sPattern)        
 
-    if (aResult[0] == True):
+    if aResult[0]:
         sHtmlContent2 = aResult[1][0]
 
         sPattern = '</tr><tr><td>(.*?)</td><td align=left>(.*?)</td>'
         oParser = cParser()
         aResult = oParser.parse(sHtmlContent2, sPattern)
-        
-        if (aResult[0] == True):
+
+        if aResult[0]:
             for aEntry in aResult[1]:
                 oGuiElement = cGuiElement()
                 oGuiElement.setSiteName(SITE_IDENTIFIER)
@@ -265,30 +270,31 @@ def __parseMediaSite(sUrl, iPage):
                 oOutputParameterHandler.addParameter('number', str(aEntry[0]))
                 oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
-	if (__checkFoxNextSite(iPage, sHtmlContent) == True):
-	    oGuiElement = cGuiElement()
-            oGuiElement.setSiteName(SITE_IDENTIFIER)
-            oGuiElement.setFunction('showNextPage')
-	    oGuiElement.setTitle('next ..')
-	    oOutputParameterHandler = cOutputParameterHandler()
-	    oOutputParameterHandler.addParameter('siteUrl', sUrl)
-	    oOutputParameterHandler.addParameter('page', str(int(iPage) + 1))
-	    oGui.addFolder(oGuiElement, oOutputParameterHandler)
-	    
+    if __checkFoxNextSite(iPage, sHtmlContent):
+        oGuiElement = cGuiElement()
+        oGuiElement.setSiteName(SITE_IDENTIFIER)
+        oGuiElement.setFunction('showNextPage')
+        oGuiElement.setTitle('next ..')
+        oOutputParameterHandler = cOutputParameterHandler()
+        oOutputParameterHandler.addParameter('siteUrl', sUrl)
+        oOutputParameterHandler.addParameter('page', str(int(iPage) + 1))
+        oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
     oGui.setEndOfDirectory()
 
+
 def __checkFoxNextSite(iCurrentPage, sHtmlContent):
-    iNextSite = int(iCurrentPage) + 1;
+    iNextSite = int(iCurrentPage) + 1
     sPattern = 'page=' + str(iNextSite) + '.*?>'
 
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
 
-    if (aResult[0] == True):
-	return True
+    if aResult[0]:
+        return True
 
-    return False;
+    return False
+
 
 def showHoster():
     oGui = cGui()
@@ -296,68 +302,69 @@ def showHoster():
     sUrl = oInputParameterHandler.getValue('siteUrl')
     sNumber = oInputParameterHandler.getValue('number')
     oRequestHandler = cRequestHandler(sUrl)
-    sHtmlContent = oRequestHandler.request();
+    sHtmlContent = oRequestHandler.request()
 
     sPattern = '<td>' + str(sNumber) + '</td>(.*?)</tr>'
 
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
-        
-    if (aResult[0] == True):
+
+    if aResult[0]:
         sHtmlContent = str(aResult[1][0])
-        
+
         sPattern = '<a href="([^"]+)"><img src="/images/([^\.]+)\.png" alt="Play"'
         oParser = cParser()
         aResult = oParser.parse(sHtmlContent, sPattern)
-        
-        if (aResult[0] == True):
+
+        if aResult[0]:
             for aEntry in aResult[1]:
                 oHoster = cHosterHandler().getHoster2(str(aEntry[1]))
-                if (oHoster != False):
+                if oHoster:
 
                     oGuiElement = cGuiElement()
                     oGuiElement.setSiteName(SITE_IDENTIFIER)
                     oGuiElement.setFunction('getMovieUrl')
 
                     sTitle = oHoster + __getLanguageFromUrl(str(aEntry[0]))
-                    sUrl = URL_MAIN + str(aEntry[0])#.replace('#top', '')
+                    sUrl = URL_MAIN + str(aEntry[0])
                     oGuiElement.setTitle(sTitle)
 
                     oOutputParameterHandler = cOutputParameterHandler()
                     oOutputParameterHandler.addParameter('siteUrl', sUrl)
                     oOutputParameterHandler.addParameter('hosterIdentifier', oHoster)
                     oGui.addFolder(oGuiElement, oOutputParameterHandler)
-        
+
     oGui.setEndOfDirectory()
+
 
 def getMovieUrl():
     oGui = cGui()
     oInputParameterHandler = cInputParameterHandler()
     sUrl = oInputParameterHandler.getValue('siteUrl')
     sHosterIdentifier = oInputParameterHandler.getValue('hosterIdentifier')
-    oHoster = cHosterHandler().getHoster2(sHosterIdentifier)            
-    
+    oHoster = cHosterHandler().getHoster2(sHosterIdentifier)
+
     oRequestHandler = cRequestHandler(sUrl)
-    sHtmlContent = oRequestHandler.request();
+    sHtmlContent = oRequestHandler.request()
     oParser = cParser()
     sPattern = '<iframe src="([^"]+)"'
     aResult = oParser.parse(sHtmlContent, sPattern)
-    if (aResult[0] == True):
-        sMovieUrl = aResult[1][0].strip().replace('/embed/video/','/video/')             
+    if aResult[0]:
+        sMovieUrl = aResult[1][0].strip().replace('/embed/video/', '/video/')
         cHosterGui().showHosterMenuDirect(oGui, oHoster, sMovieUrl)
 
-
     oGui.setEndOfDirectory()
-        
+
 
 def __getLanguageFromUrl(sUrl):
     sPattern = 'l=(.*?)&'
     oParser = cParser()
     aResult = oParser.parse(sUrl, sPattern)
-    if (aResult[0] == True):
+    if aResult[0]:
         return ' - ' + str(aResult[1][0])
 
-    return ''    
+    return ''
+
 
 def __getLanguage(sHtmlContent):
     sResult = ''
@@ -366,7 +373,7 @@ def __getLanguage(sHtmlContent):
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
 
-    if (aResult[0] == True):
+    if aResult[0]:
         if (sResult != ''):
             sResult = sResult + ', '
         sResult = sResult + 'de'
@@ -374,12 +381,9 @@ def __getLanguage(sHtmlContent):
     sPattern = 'english(.*?).gif'
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
-
-    if (aResult[0] == True):
+    if aResult[0]:
         if (sResult != ''):
             sResult = sResult + ', '
         sResult = sResult + 'en'
-        
+
     return sResult
-
-
