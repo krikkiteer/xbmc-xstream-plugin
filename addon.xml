@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.xstream" name="xStream" version="2.0.20" provider-name="krikkiteer">
+    <requires>
+        <import addon="script.module.urlresolver" version="1.0.7" />
+        <import addon="script.module.t0mm0.common" version="1.1.0" />
+        <import addon="script.module.metahandler" version="1.0.0" />
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">xStream</summary>
+        <description lang="en">xStream is an addon, that can itself be extended by plugins. It provides the structure for easy plugin-development for other streaming sites.
+        Formerly developed by Lynx187 (originator: murphy, MaxMustermann), now on github.
+        </description>
+        <platform>all</platform>
+    </extension>
+</addon>
