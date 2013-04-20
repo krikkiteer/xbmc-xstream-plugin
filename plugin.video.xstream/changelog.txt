@@ -1,9 +1,3 @@
-- Version 2.0.21 - 20.4.2013
-================================================================================
-    - minor change to hosters.py to prevent it from urlresolving the media-url
-    - kkiste.to fixed (custom ecostream-handler until urlresolver works again)
-    - updated requirements to use urlresolver 2.0.9
-
 - Version 2.0.20 - 19.4.2013
 ================================================================================
     - streamallthis_ch plugin added

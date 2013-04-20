@@ -165,14 +165,14 @@ def showSeries():
 
 def __listEpisodes(episodes):
     oGui = cGui()
-    for sURL, sTitle in episodes:
+    for sUrl, sTitle in episodes:
         oGuiElement = cGuiElement()
         oGuiElement.setSiteName(SITE_IDENTIFIER)
         oGuiElement.setFunction('playEpisode')
         oGuiElement.setTitle(sTitle)
 
         oOutputParameterHandler = cOutputParameterHandler()
-        oOutputParameterHandler.addParameter('sURL', sURL)
+        oOutputParameterHandler.addParameter('sURL', sUrl)
         oOutputParameterHandler.addParameter('sTitle', sTitle)
         oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
@@ -218,6 +218,6 @@ def playEpisode():
     sUrl = 'http://www.putlocker.com/embed/%s' % sFileName
     oHoster = cHosterHandler().getHoster(sUrl)
     if oHoster is not False:
-        cHosterGui().showHosterMenuDirect(oGui, oHoster, sUrl, bGetRedirectUrl=False, sFileName=sTitle)
+        cHosterGui().showHosterMenuDirect(oGui, oHoster, sUrl, bGetRedirectUrl=False, sFileName=sTitle, noResolve=False)
 
     oGui.setEndOfDirectory()

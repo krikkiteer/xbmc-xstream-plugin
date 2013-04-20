@@ -114,16 +114,15 @@ class cHosterGui:
         bGetRedirectUrl = oInputParameterHandler.getValue('bGetRedirectUrl')
         sFileName = oInputParameterHandler.getValue('sFileName')
         noResolve = oInputParameterHandler.getValue('noResolve')
-
         if (bGetRedirectUrl == 'True'):
             sMediaUrl = self.__getRedirectUrl(sMediaUrl)
 
         logger.info('call play: ' + sMediaUrl)
 
-        if not noResolve:
-            sLink = urlresolver.resolve(sMediaUrl)
-        else:
+        if noResolve == 'True':
             sLink = sMediaUrl
+        else:
+            sLink = urlresolver.resolve(sMediaUrl)
 
         if sLink is not False:
             oGuiElement = cGuiElement()
