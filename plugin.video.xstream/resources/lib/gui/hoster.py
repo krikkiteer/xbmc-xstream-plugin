@@ -47,20 +47,20 @@ class cHosterGui:
 
         oGui.setEndOfDirectory()
 
-    def showHosterMenuDirect(self, oGui, oHoster, sMediaUrl, bGetRedirectUrl=False, sFileName=''):
+    def showHosterMenuDirect(self, oGui, oHoster, sMediaUrl, bGetRedirectUrl=False, sFileName='', noResolve=False):
         # play
-        self.__showPlayMenu(oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName)
+        self.__showPlayMenu(oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName, noResolve)
 
         # playlist
-        self.__showPlaylistMenu(oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName)
+        self.__showPlaylistMenu(oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName, noResolve)
 
         # download
-        self.__showDownloadMenu(oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName)
+        self.__showDownloadMenu(oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName, noResolve)
 
         # JD
-        self.__showJDMenu(oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName)
+        self.__showJDMenu(oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName, noResolve)
 
-    def __showPlayMenu(self, oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName=''):
+    def __showPlayMenu(self, oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName='', noResolve=False):
         oGuiElement = cGuiElement()
         oGuiElement.setSiteName(self.SITE_NAME)
         oGuiElement.setFunction('play')
@@ -69,9 +69,10 @@ class cHosterGui:
         oOutputParameterHandler.addParameter('sMediaUrl', sMediaUrl)
         oOutputParameterHandler.addParameter('bGetRedirectUrl', bGetRedirectUrl)
         oOutputParameterHandler.addParameter('sFileName', sFileName)
+        oOutputParameterHandler.addParameter('noResolve', noResolve)
         oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
-    def __showDownloadMenu(self, oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName=''):
+    def __showDownloadMenu(self, oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName='', noResolve=False):
         oGuiElement = cGuiElement()
         oGuiElement.setSiteName(self.SITE_NAME)
         oGuiElement.setFunction('download')
@@ -80,9 +81,10 @@ class cHosterGui:
         oOutputParameterHandler.addParameter('sMediaUrl', sMediaUrl)
         oOutputParameterHandler.addParameter('bGetRedirectUrl', bGetRedirectUrl)
         oOutputParameterHandler.addParameter('sFileName', sFileName)
+        oOutputParameterHandler.addParameter('noResolve', noResolve)
         oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
-    def __showJDMenu(self, oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName=''):
+    def __showJDMenu(self, oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName='', noResolve=False):
         oGuiElement = cGuiElement()
         oGuiElement.setSiteName(self.SITE_NAME)
         oGuiElement.setTitle('an JDownloader senden')
@@ -90,9 +92,10 @@ class cHosterGui:
         oOutputParameterHandler = cOutputParameterHandler()
         oOutputParameterHandler.addParameter('sMediaUrl', sMediaUrl)
         oOutputParameterHandler.addParameter('bGetRedirectUrl', bGetRedirectUrl)
+        oOutputParameterHandler.addParameter('noResolve', noResolve)
         oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
-    def __showPlaylistMenu(self, oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName=''):
+    def __showPlaylistMenu(self, oGui, sMediaUrl, oHoster, bGetRedirectUrl, sFileName='', noResolve=False):
         oGuiElement = cGuiElement()
         oGuiElement.setSiteName(self.SITE_NAME)
         oGuiElement.setFunction('addToPlaylist')
@@ -101,6 +104,7 @@ class cHosterGui:
         oOutputParameterHandler.addParameter('sMediaUrl', sMediaUrl)
         oOutputParameterHandler.addParameter('bGetRedirectUrl', bGetRedirectUrl)
         oOutputParameterHandler.addParameter('sFileName', sFileName)
+        oOutputParameterHandler.addParameter('noResolve', noResolve)
         oGui.addFolder(oGuiElement, oOutputParameterHandler)
 
     def play(self):
@@ -109,13 +113,17 @@ class cHosterGui:
         sMediaUrl = oInputParameterHandler.getValue('sMediaUrl')
         bGetRedirectUrl = oInputParameterHandler.getValue('bGetRedirectUrl')
         sFileName = oInputParameterHandler.getValue('sFileName')
+        noResolve = oInputParameterHandler.getValue('noResolve')
 
         if (bGetRedirectUrl == 'True'):
             sMediaUrl = self.__getRedirectUrl(sMediaUrl)
 
         logger.info('call play: ' + sMediaUrl)
 
-        sLink = urlresolver.resolve(sMediaUrl)
+        if not noResolve:
+            sLink = urlresolver.resolve(sMediaUrl)
+        else:
+            sLink = sMediaUrl
 
         if sLink is not False:
             oGuiElement = cGuiElement()

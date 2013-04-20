@@ -1,17 +1,17 @@
-#!/usr/bin/env python2.7
-
-import sys
+# -*- coding: utf-8 -*-
 import urllib
 import urllib2
+import httplib
 import mechanize
 import xbmcgui
-from resources.lib.gui.gui import cGui
+
 import logger
+
 
 class cRequestHandler:
     REQUEST_TYPE_GET = 0
     REQUEST_TYPE_POST = 1
-      
+
     def __init__(self, sUrl):
         self.__sUrl = sUrl
         self.__sRealUrl = ''
@@ -32,7 +32,7 @@ class cRequestHandler:
         self.__cType = cType
 
     def addHeaderEntry(self, sHeaderKey, sHeaderValue):
-        aHeader = {sHeaderKey : sHeaderValue}
+        aHeader = {sHeaderKey: sHeaderValue}
         self.__aHeaderEntries.append(aHeader)
 
     def addParameters(self, sParameterKey, mParameterValue):
@@ -43,7 +43,7 @@ class cRequestHandler:
 
     # url after redirects
     def getRealUrl(self):
-        return self.__sRealUrl;
+        return self.__sRealUrl
 
     def request(self):
         self.__sUrl = self.__sUrl.replace(' ', '+')
@@ -74,50 +74,39 @@ class cRequestHandler:
         else:
             oRequest = mechanize.Request(self.__sUrl)
 
-        for aHeader in self.__aHeaderEntries:                
+        for aHeader in self.__aHeaderEntries:
                 for sHeaderKey, sHeaderValue in aHeader.items():
                     oRequest.add_header(sHeaderKey, sHeaderValue)
 
         try:
-            oResponse = mechanize.urlopen(oRequest)                  
+            oResponse = mechanize.urlopen(oRequest)
         except urllib2.HTTPError, e:
-            xbmcgui.Dialog().ok('xStream','Fehler beim Abrufen der Url:',self.__sUrl, str(e))
-            logger.error("HTTPError "+str(e)+" Url: "+self.__sUrl)
-            return ''          
-        except urllib2.URLError, e:
-            xbmcgui.Dialog().ok('xStream',str(e.reason), 'Fehler')
-            logger.error("URLError "+str(e.reason)+" Url: "+self.__sUrl)
+            xbmcgui.Dialog().ok('xStream', 'Fehler beim Abrufen der Url:', self.__sUrl, str(e))
+            logger.error("HTTPError " + str(e) + " Url: " + self.__sUrl)
             return ''
-            #cGui().showError(e.reason, 'Fehler',5)
-            #checksLogger.error('URLError = ' + str(e.reason))
+        except urllib2.URLError, e:
+            xbmcgui.Dialog().ok('xStream', str(e.reason), 'Fehler')
+            logger.error("URLError " + str(e.reason) + " Url: " + self.__sUrl)
+            return ''
         except httplib.HTTPException, e:
             xbmcgui.Dialog().ok('xStream', str(e))
             logger.error("HTTPException "+str(e)+" Url: "+self.__sUrl)
             return ''
-            #cGui().showError(e.read(), 'Fehler',5)
-            #checksLogger.error('HTTPException')
-        #except Exception:
-        #except:
-            #oResponse = mechanize.urlopen(oRequest)
-        
-        sContent = oResponse.read()
-        if (self.__bRemoveNewLines == True):
-            sContent = sContent.replace("\n","")
-            sContent = sContent.replace("\r\t","")
 
-        if (self.__bRemoveBreakLines == True):
-            sContent = sContent.replace("&nbsp;","")
+        sContent = oResponse.read()
+        if self.__bRemoveNewLines:
+            sContent = sContent.replace("\n", "")
+            sContent = sContent.replace("\r\t", "")
+
+        if self.__bRemoveBreakLines:
+            sContent = sContent.replace("&nbsp;", "")
 
         self.__sResponseHeader = oResponse.info()
         self.__sRealUrl = oResponse.geturl()
-        
+
         oResponse.close()
         return sContent
 
-    def getHeaderLocationUrl(self):        
+    def getHeaderLocationUrl(self):
         opened = mechanize.urlopen(self.__sUrl)
         return opened.geturl()
-    
-
-
-

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from resources.lib.parser import cParser
 from resources.lib.handler.requestHandler import cRequestHandler
+import logger
 import urlresolver
+from urlresolver.types import HostedMediaFile
 
 
 class cHosterHandler:
@@ -29,16 +31,16 @@ class cHosterHandler:
     def getHoster2(self, sHoster):
         return self.getHoster(sHoster)
 
-    '''
-    checks if there is a resolver for a given hoster or url
-    '''
     def getHoster(self, sHosterFileName):
+        """
+        interfaces urlresolver to find supported hoster..
+
+        :param sHosterFileName: str, link to media as scraped from page
+        :returns str: the hostname of the hoster or False
+        """
         if sHosterFileName != '':
-            source = [urlresolver.HostedMediaFile(url=sHosterFileName)]
-            if (urlresolver.filter_source_list(source)):
-                return source[0].get_host()
-            # media_id is in this case only a dummy
-            source = [urlresolver.HostedMediaFile(host=sHosterFileName, media_id='ABC123XYZ')]
-            if (urlresolver.filter_source_list(source)):
-                return source[0].get_host()
+            source = [HostedMediaFile(url=sHosterFileName)]
+            valid_sources = urlresolver.filter_source_list(source)
+            if valid_sources:
+                return valid_sources[0].get_host()
         return False
