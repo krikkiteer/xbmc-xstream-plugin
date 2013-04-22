@@ -24,13 +24,6 @@ former author(s) - up till 2.0.19:
 Lynx187 (originator: murphy, MaxMustermann)
 
 
-disclaimer:
------------
-
-this whole project serves only educational purposes. it shall by no means be actually used
-or serve to encourage anyone for circumventing hoster-applied playing requirements.
-
-
 plugins :: working
 ------------------
 

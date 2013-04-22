@@ -204,40 +204,45 @@ def showEpisodes():
     sImdb = oParams.getValue('imdbID')
     sSeason = oParams.getValue('Season')
 
-    logger.info("%s: show episodes of '%s' season '%s' " % (SITE_NAME, sShowTitle, sSeason))
+    logger.info("%s: show episodes of '%s', season '%s' " % (SITE_NAME, sShowTitle, sSeason))
 
     oRequestHandler = cRequestHandler(sUrl)
     sHtmlContent = oRequestHandler.request()
 
     oParser = cParser()
     hParser = HTMLParser.HTMLParser()
-    sPattern = '<tr>.+?<td>(.+?)</td>.+?<td><a href="(.+?)">.+?<strong>(.+?)</strong>.+?<span lang="(.+?)">(.+?)</span>.+?</a></td>.+?<td class="nowrap">(.+?)</td>.+?</tr>'
+
+    sPattern = '<tr>\s*<td>(.+?)</td>\s*<td><a href="(.+?)">\s*<strong>(.+?)</strong>.*?</tr>'
     aResult = oParser.parse(sHtmlContent, sPattern)
-    if aResult[0]:
-        for sNumber, sUrl, episodeTitle, origLanguage, origLanguageTitle, hosterlinks in aResult[1]:
-            sUrl = '%s/%s' % (URL_MAIN, sUrl)
-            episodeTitle = hParser.unescape(episodeTitle)
-            origLanguageTitle = hParser.unescape(origLanguageTitle)
+    try:
+        if aResult[0]:
+            for sNumber, sUrl, episodeTitle in aResult[1]:
+                sUrl = '%s/%s' % (URL_MAIN, sUrl)
+                episodeTitle = hParser.unescape(episodeTitle)
 
-            oGuiElement = cGuiElement('Episode ' + sNumber, SITE_IDENTIFIER, 'showHosters')
-            if META and sImdb:
-                oMetaget = metahandlers.MetaData()
-                meta = oMetaget.get_episode_meta(sShowTitle, sImdb, sSeason, sNumber)
-                meta['TVShowTitle'] = sShowTitle
-                oGuiElement.setItemValues(meta)
-                oGuiElement.setThumbnail(meta['cover_url'])
-                oGuiElement.setFanart(meta['backdrop_url'])
+                oGuiElement = cGuiElement('Episode ' + sNumber, SITE_IDENTIFIER, 'showHosters')
+                if META and sImdb:
+                    oMetaget = metahandlers.MetaData()
+                    meta = oMetaget.get_episode_meta(sShowTitle, sImdb, sSeason, sNumber)
+                    meta['TVShowTitle'] = sShowTitle
+                    oGuiElement.setItemValues(meta)
+                    oGuiElement.setThumbnail(meta['cover_url'])
+                    oGuiElement.setFanart(meta['backdrop_url'])
 
-            # how do we detect the language of the episode ?
-            # fixed to 'de' for now as most of it seems to be german on burning-seri.es
-            sTitle = 's%se%s - %s (%s)' % (sSeason.zfill(2), sNumber.zfill(2), episodeTitle, 'de')
-            oGuiElement.setTitle(sTitle)
-            oParams.setParam('siteUrl', sUrl)
-            oParams.setParam('EpisodeNr', sNumber)
-            oParams.setParam('sTitle', sTitle)
-            oGui.addFolder(oGuiElement, oParams, iTotal=len(aResult[1]))
+                # how do we detect the language of the episode ?
+                # fixed to 'de' for now as most of it seems to be german on burning-seri.es
+                sTitle = 's%se%s - %s (%s)' % (sSeason.zfill(2), sNumber.zfill(2), episodeTitle, 'de')
+                oGuiElement.setTitle(sTitle)
+                oParams.setParam('siteUrl', sUrl)
+                oParams.setParam('EpisodeNr', sNumber)
+                oParams.setParam('sTitle', sTitle)
 
-    oGui.setView('episodes')
+                oGui.addFolder(oGuiElement, oParams, iTotal=len(aResult[1]))
+
+        oGui.setView('episodes')
+    except:
+        import traceback
+        traceback.print_exc()
     oGui.setEndOfDirectory()
 
 
