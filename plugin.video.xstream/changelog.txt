@@ -1,3 +1,7 @@
+- Version 2.0.21a2 - 22.4.2013
+================================================================================
+    - burning_series plugin fixed, genre listing added
+
 - Version 2.0.21a - 20.4.2013
 ================================================================================
     - minor change to hosters.py to prevent it from urlresolving the media-url

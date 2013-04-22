@@ -29,6 +29,9 @@ class cHosterHandler:
         return False, ''
 
     def getHoster2(self, sHoster):
+        """
+        ..warn: this is deprecated, dunno why this was ever created
+        """
         return self.getHoster(sHoster)
 
     def getHoster(self, sHosterFileName):

@@ -20,24 +20,6 @@ current development status:
     
 latest version:
     2.0.21a2
-    
-tested on:
-    appletv 2, osx 10.8.3
-
-plugins :: working
-    - streamallthis_ch  - full
-    - kinox_to          - full
-    - kinokiste_com     - full
-    - bundesliga_de     - full
-    - burning_series    - full
-
-plugins, yet untested or not working    
-    - serienjunkies_org - partial
-
-    - anime-proxer.me - broken
-    - anime-stream24.com - broken
-    - movie2k.to - broken
-
 
 disclaimer:
     this whole project serves only educational purposes. it shall by no means be actually used
