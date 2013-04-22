@@ -9,6 +9,8 @@ from resources.lib.handler.hosterHandler import cHosterHandler
 from resources.lib.gui.inputWindow import cInputWindow
 from resources.lib import recaptcha
 from xbmc import log, LOGERROR
+import json
+import HTMLParser
 
 SITE_IDENTIFIER = 'serienjunkies_org'
 SITE_NAME = 'Serienjunkies.org'
@@ -24,7 +26,6 @@ def load():
 def __createMenuEntry(oGui, sFunction, sLabel, lOutputParameter, sThumb=False):
     oOutputParameterHandler = cOutputParameterHandler()
 
-  # Create all paramter auf the lOuputParameter
     try:
         for outputParameter in lOutputParameter:
             oOutputParameterHandler.addParameter(outputParameter[0], outputParameter[1])
@@ -54,16 +55,17 @@ def __showCharacters(sUrl):
     sHtmlContent = cRequestHandler(sUrl).request()
     sPattern = '<div class="apz_container">(.*?)</div>'
     aResult = cParser().parse(sHtmlContent, sPattern)
+    hParser = HTMLParser.HTMLParser()
     if aResult[0]:
         sHtmlContent = aResult[1][0]
         sPattern = '<a class="letter"\s*href="([^"]+)">([^<]+)</a>'
         aResult = cParser().parse(sHtmlContent, sPattern)
         if aResult[0]:
-            for aEntry in aResult[1]:
-                sUrl = str(aEntry[0]).strip().replace('&amp;', '&')
+            for sUrl, sTitle in aResult[1]:
+                sUrl = hParser.unescape(sUrl.strip())
                 if not sUrl.startswith('http'):
                     sUrl = URL_MAIN + sUrl
-                sTitle = aEntry[1].replace('&amp;', '&').replace('&#039;', '\'')
+                sTitle = hParser.unescape(sTitle)
 
                 __createMenuEntry(oGui, 'showSeries', sTitle, [['siteUrl', sUrl]])
 
@@ -83,18 +85,18 @@ def __showSeries(sUrl):
     sPattern = '<ul>(.*?)</ul>'
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
+    hParser = HTMLParser.HTMLParser()
     if aResult[0]:
         sHtmlContent = aResult[1][0]
         sPattern = '<li>\s*<a href="([^"]+)">([^<]+)</a>\s*</li>'
         oParser = cParser()
         aResult = oParser.parse(sHtmlContent, sPattern)
         if aResult[0] is True:
-            for aEntry in aResult[1]:
-                sUrl = str(aEntry[0]).strip().replace('&amp;', '&')
+            for sUrl, sTitle in aResult[1]:
+                sUrl = hParser.unescape(sUrl.strip())
                 if not sUrl.startswith('http'):
                     sUrl = URL_MAIN + sUrl
-
-                sTitle = aEntry[1].replace('&amp;', '&').replace('&#039;', '\'')
+                sTitle = hParser.unescape(sTitle)
 
                 __createMenuEntry(oGui, 'showSeasons', sTitle, [['siteUrl', sUrl]])
 
@@ -116,7 +118,6 @@ def __showSeasons(sUrl):
     sHtmlContent = oRequestHandler.request()
 
     # get Series ID
-    #$.getJSON('http://serienjunkies.org/media/ajax/getStreams.php', {s:seasonNum,ids:'0084967'}, function(data){
     sPattern = '{s:seasonNum,ids:\'([^\']+)\'}'
     aResult = oParser.parse(sHtmlContent, sPattern)
     if not aResult[0] is True:
@@ -152,14 +153,15 @@ def __showEpisodes(sUrl):
     oGui = cGui()
     oRequestHandler = cRequestHandler(sUrl)
     sHtmlContent = oRequestHandler.request()
-    #id     |       title       |       language        |       episode     |       hosters
-    sPattern = '\["([^"]+)","([^"]+)","([^"]+)","([^"]+)",{([^}]+)}'
-    aResult = cParser().parse(sHtmlContent, sPattern)
-    if aResult[0]:
-        for aEntry in aResult[1]:
-            sTitle = aEntry[1].replace('&amp;', '&').replace('&#039;', '\'')
-            sHosters = aEntry[4]
+    hParser = HTMLParser.HTMLParser()
+    try:
+        data = json.loads(sHtmlContent)
+    except:
+        data = []
 
+    if data:
+        for sId, sTitle, sLanguage, sEpisode, sHosters, sDunno in data:
+            sTitle = hParser.unescape(sTitle)
             __createMenuEntry(oGui, 'showHosters', sTitle, [['siteUrl', sUrl], ['sTitle', sTitle], ['sHosters', sHosters]])
 
     oGui.setEndOfDirectory()
@@ -173,20 +175,16 @@ def showHosters():
     sHosters = oInputParameterHandler.getValue('sHosters')
 
     # hosterName:hosterId
-    sPattern = '"([^"]+)":"([^"]+)"'
+    sPattern = "u'(.+?)': u'(.+?)'"
     oParser = cParser()
     aResult = oParser.parse(sHosters, sPattern)
     if aResult[0]:
-        for aEntry in aResult[1]:
-            sHoster = aEntry[0]
-            sHosterId = aEntry[1]
+        for sHoster, sHosterId in aResult[1]:
 
             sUrl = 'http://crypt2.be/file/' + sHosterId
             sThumbnail = 'http://serienjunkies.org/media/img/stream/'+sHoster+'.png'
 
-            oHoster = cHosterHandler().getHoster2(sHoster.lower())
-            if oHoster is not False:
-                __createMenuEntry(oGui, 'getHosterUrlandPlay', oHoster, [['siteUrl', sUrl], ['sTitle', sTitle], ['hosterName', oHoster]], sThumb=sThumbnail)
+            __createMenuEntry(oGui, 'getHosterUrlandPlay', sHoster, [['siteUrl', sUrl], ['sTitle', sTitle]], sThumb=sThumbnail)
 
     oGui.setEndOfDirectory()
 
@@ -195,13 +193,13 @@ def getHosterUrlandPlay():
     oGui = cGui()
     oInputParameterHandler = cInputParameterHandler()
     sUrl = oInputParameterHandler.getValue('siteUrl')
-    sHoster = oInputParameterHandler.getValue('hosterName')
     sTitle = oInputParameterHandler.getValue('sTitle')
 
     oRequestHandler = cRequestHandler(sUrl)
     sHtmlContent = oRequestHandler.request()
     sUrl = oRequestHandler.getRealUrl()
-    #--> Recaptchabehandlung
+
+    # take care of recaptcha-forms
     while(recaptcha.checkForReCaptcha(sHtmlContent)):
         aCaptchaParams = recaptcha.getCaptcha(sHtmlContent)
         oSolver = cInputWindow(captcha=aCaptchaParams[0])
@@ -216,31 +214,32 @@ def getHosterUrlandPlay():
             oRequestHandler.addParameters(param[0], param[1])
         oRequestHandler.addParameters('submit', 'true')
         sHtmlContent = oRequestHandler.request()
-    #<-- Recaptchabehandlung
-    #Videolink in einem Iframe?
+
+    # if the videolink is in an iframe
     sPattern = '<iframe id="iframe" src="([^"]+)"'
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
     if aResult[0]:
         sStreamUrl = aResult[1][0]
-        oHoster = cHosterHandler().getHoster2(sHoster)
+        oHoster = cHosterHandler().getHoster(sStreamUrl)
         cHosterGui().showHosterMenuDirect(oGui, oHoster, sStreamUrl, sFileName=sTitle)
         oGui.setEndOfDirectory()
         return
 
+    # if its in a flash-container
     sPattern = '<param name="movie" value="([^"]+)"'
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
     if aResult[0]:
         sStreamUrl = aResult[1][0]
-        oHoster = cHosterHandler().getHoster2(sHoster)
+        oHoster = cHosterHandler().getHoster(sStreamUrl)
         cHosterGui().showHosterMenuDirect(oGui, oHoster, sStreamUrl, sFileName=sTitle)
         oGui.setEndOfDirectory()
         return
 
-    #Link fuehrt ueber redirects direkt zum Hoster
+    # if its done by simple redirects
     else:
         sStreamUrl = oRequestHandler.getRealUrl()
-        oHoster = cHosterHandler().getHoster2(sHoster)
+        oHoster = cHosterHandler().getHoster(sStreamUrl)
         cHosterGui().showHosterMenuDirect(oGui, oHoster, sStreamUrl, sFileName=sTitle)
         oGui.setEndOfDirectory()

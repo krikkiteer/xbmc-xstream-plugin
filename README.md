@@ -18,7 +18,7 @@ status
 ------
 
 current development status: 2.0.21-alpha  
-latest version: 2.0.21a2  
+latest version: 2.0.21a3  
 tested on: appletv 2, osx 10.8.3  
 
 

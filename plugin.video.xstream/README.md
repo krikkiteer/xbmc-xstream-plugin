@@ -15,7 +15,7 @@ status
 ------
 
 current development status: 2.0.21-alpha  
-latest version: 2.0.21a2  
+latest version: 2.0.21a3  
 tested on: appletv 2, osx 10.8.3  
 
 
@@ -32,14 +32,15 @@ plugins :: working
 * kinokiste_com     - full
 * bundesliga_de     - full
 * burning_series    - full
+* serienjunkies_org - full
 
 plugins :: untested / defunct   
 -----------------------------
 
-* serienjunkies_org - partial
 * anime-proxer.me - broken
 * anime-stream24.com - broken
 * movie2k.to - broken
+* gstream_in - broken
 
 
 disclaimer:

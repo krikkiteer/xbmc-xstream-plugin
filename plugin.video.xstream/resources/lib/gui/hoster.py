@@ -122,7 +122,14 @@ class cHosterGui:
         if noResolve == 'True':
             sLink = sMediaUrl
         else:
-            sLink = urlresolver.resolve(sMediaUrl)
+            try:
+                sLink = urlresolver.resolve(sMediaUrl)
+                if sLink is False:
+                    cGui().showInfo('Info', 'Dead link')
+                    return
+            except:
+                cGui().showError('Error', 'Cannot resolve URL')
+                return
 
         if sLink is not False:
             oGuiElement = cGuiElement()
