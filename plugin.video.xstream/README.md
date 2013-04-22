@@ -1,5 +1,5 @@
-a fork of the well-known xbmc-plugin for online-streaming services.
-contributions are welcome and appreciated.
+a fork of the well-known xbmc-plugin for online-streaming services.  
+contributions are welcome and appreciated.  
 
 
 why the fork ?
@@ -14,9 +14,9 @@ why the fork ?
 status
 ------
 
-current development status: 2.0.21-alpha
-latest version: 2.0.21a2
-tested on: appletv 2, osx 10.8.3
+current development status: 2.0.21-alpha  
+latest version: 2.0.21a2  
+tested on: appletv 2, osx 10.8.3  
 
 
 former author(s) - up till 2.0.19:
